@@ -75,11 +75,32 @@ def pca(x, sr, show_plot):
 
   if (show_plot):
     plt.clf()
-    plt.scatter(Y[:,0], Y[:,1], s=3)
+    plt.scatter(Y[:,0], Y[:,1], s = 3)
     plt.show()
 
   return Y
 # END pca
+
+def pca_compare(xs, sr):
+  plt.clf()
+
+  colors = ['b', 'r']
+  i = 0
+  for x in xs:
+    frame_size = int(float(sr) * (20.0/1000.0))
+    X = librosa.feature.mfcc(x, sr = sr, hop_length = frame_size)
+    X = sklearn.preprocessing.scale(X)
+
+    model = sklearn.decomposition.PCA(n_components = 2, whiten=True)
+    model.fit(X.T)
+    Y = model.transform(X.T)
+
+    plt.scatter(Y[:,0], Y[:,1], s = 8, c = colors[i])
+    i += 1
+
+  plt.legend(("Original", "Synthesized"))
+  plt.show()
+# END pca_compare
 
 def nmf(x, sr):
   print("Perform NMF")
@@ -187,6 +208,38 @@ def get_fft(x, sr, show_plot):
   return f, x_fft_mag
 # END plot_fft
 
+def seg_compare(xs, sr):
+  i = 1
+  for x in xs:
+    # pick out onset frames
+    hop_length = 512
+    onset_frames = \
+      librosa.onset.onset_detect(x,
+                                 sr = sr,
+                                 hop_length = hop_length)
+
+    # convert frames to timestamps
+    onset_times = \
+      librosa.frames_to_time(onset_frames,
+                             sr = sr,
+                             hop_length = hop_length)
+
+    # calculate stft
+    S = librosa.stft(x)
+    logS = librosa.amplitude_to_db(np.abs(S))
+
+    # plot stuff
+    plt.subplot(2, 1, i)
+    librosa.display.specshow(logS,
+                             sr = sr,
+                             x_axis = 'time',
+                             y_axis = 'log')
+    plt.vlines(onset_times, 0, 10000, color='g')
+    i += 1
+
+  plt.show()
+# END seg_compare
+
 def onset_seg(x, sr, show_plot):
   print("Onset seg")
 
@@ -205,11 +258,13 @@ def onset_seg(x, sr, show_plot):
                            hop_length = hop_length)
   print(onset_times)
 
-  # plot spectrogram
+  # calculate stft
   S = librosa.stft(x)
   logS = librosa.amplitude_to_db(np.abs(S))
 
   if (show_plot):
+    plt.subplot(2, 1, 1)
+
     librosa.display.specshow(logS,
                              sr = sr,
                              x_axis = 'time',
@@ -314,14 +369,17 @@ def main():
                            norm = True)
 
   # out of curiosity, draw the spectrogram
-  onset_seg(x, sr, True)
-  onset_seg(x_synth, sr, True)
+  #onset_seg(x, sr, True)
+  #onset_seg(x_synth, sr, True)
+  seg_compare([x, x_synth], sr)
 
   # print_data(x, sr)
 
   # plot_signal(x, sr)
 
-  # pca(x, sr)
+  #pca(x, sr, True)
+  #pca(x_synth, sr, True)
+  pca_compare([x, x_synth], sr)
 
   # nmf(x, sr)
 
