@@ -216,7 +216,7 @@ def onset_seg(x, sr, show_plot):
                              y_axis = 'log')
 
     # overlay onset frames
-    plt.vlines(onset_times, 0, 10000, color='k')
+    plt.vlines(onset_times, 0, 10000, color='g')
     plt.show()
 
   # split source audio on the segments
@@ -233,7 +233,7 @@ def onset_seg(x, sr, show_plot):
     segments.append(np.concatenate([x[i:i+frame_size], silent_frame]))
 
   # pad 0 and end of input to samples
-  onset_samples = np.concatenate([[0], onset_samples, [len(x)]])
+  onset_samples = np.concatenate([onset_samples, [len(x)]])
 
   return sr, segments, onset_samples
 # END onset_seg
@@ -302,7 +302,7 @@ def main():
   x, sr = librosa.load(fname)
   print_data(x, sr)
 
-  get_fft(x, sr, True)
+  # get_fft(x, sr, True)
 
   # generate synth of input
   x_synth = generate_synth(x, sr)
@@ -314,6 +314,7 @@ def main():
                            norm = True)
 
   # out of curiosity, draw the spectrogram
+  onset_seg(x, sr, True)
   onset_seg(x_synth, sr, True)
 
   # print_data(x, sr)
