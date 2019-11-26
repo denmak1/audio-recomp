@@ -117,7 +117,6 @@ def nmf(x, sr):
   plt.tight_layout()
   plt.show()
 
-
   X, X_phase = librosa.magphase(S)
   n_components = 6
   W, H = librosa.decompose.decompose(X, n_components=n_components, sort=True)
@@ -375,7 +374,7 @@ def main():
 
   # print_data(x, sr)
 
-  # plot_signal(x, sr)
+  plot_signal(x, sr)
 
   #pca(x, sr, True)
   #pca(x_synth, sr, True)
